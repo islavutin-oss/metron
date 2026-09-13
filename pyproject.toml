@@ -1,0 +1,18 @@
+# Copyright (c) 2024 AXELTEC SOFTWARE LTD.
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = ["setuptools>=45", "wheel", "tomli"]
+build-backend = "setuptools.build_meta"
+
+[tool.mypy]
+python_version = "3.12"
+exclude = [
+    '^metron/__main__.py',
+    '^venv',
+    '^.venv',
+    '^build/'
+]
+
+[tool.uv]
+package = true

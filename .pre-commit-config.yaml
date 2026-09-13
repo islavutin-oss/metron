@@ -1,0 +1,48 @@
+repos:
+- repo: https://github.com/Lucas-C/pre-commit-hooks
+  rev: v1.5.5
+  hooks:
+  - id: insert-license
+    types_or: [python, yaml, toml, shell]
+    args:
+      [
+        '--detect-license-in-X-top-lines=20',
+        '--comment-style=#',
+        '--license-filepath=.github/copyright_template.txt',
+        '--skip-license-insertion-comment=.github/copyright_template.txt'
+      ]
+- repo: https://github.com/Lucas-C/pre-commit-hooks
+  rev: v1.5.5
+  hooks:
+  - id: insert-license
+    types_or: [javascript, ts, jsx, tsx]
+    args:
+      [
+        '--detect-license-in-X-top-lines=20',
+        '--comment-style=//',
+        '--license-filepath=.github/copyright_template.txt',
+        '--skip-license-insertion-comment=.github/copyright_template.txt'
+      ]
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  - id: check-yaml
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.6.8
+  hooks:
+  - id: ruff
+    types_or: [ python, pyi ]
+    args: [ --fix ]
+  - id: ruff-format
+    types_or: [ python, pyi ]
+
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: 'v1.11.2'
+  hooks:
+  - id: mypy
+    # language: system
+    pass_filenames: false
+    args: [".", "--install-types", "--non-interactive", "--ignore-missing-imports"]

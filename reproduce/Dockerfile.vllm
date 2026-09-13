@@ -1,0 +1,37 @@
+# Engine image: vLLM.
+#
+# One thin layer on top of the upstream build. We deliberately do not compile
+# our own vLLM: upstream's image is the artefact the rest of the world
+# measures, and rebuilding it would make our numbers a different measurement
+# while adding a build nobody audits.
+#
+# The base is pinned by digest, not by tag. A tag is a mutable pointer, so a
+# tagged base makes the recorded provenance a statement about a name rather
+# than about bytes.
+ARG BASE
+FROM ${BASE}
+
+# The engine loads model weights, which are the untrusted input in this system,
+# so it does not run as root. 65534 is nobody/nogroup, which exists in the base
+# and owns nothing.
+USER 65534:65534
+
+# Caches must land on the mounted volume rather than in an unwritable HOME:
+# the container runs with a read-only root filesystem.
+# nobody's HOME is /nonexistent in the base image, and the root filesystem is
+# read-only, so anything that touches HOME dies with EROFS before the engine
+# starts. Point it at the writable cache mount.
+ENV HOME=/cache/home \
+    HF_HOME=/cache/hf \
+    XDG_CACHE_HOME=/cache/xdg \
+    TORCHINDUCTOR_CACHE_DIR=/cache/inductor \
+    TRITON_CACHE_DIR=/cache/triton \
+    VLLM_CACHE_ROOT=/cache/vllm \
+    HF_HUB_OFFLINE=1 \
+    TRANSFORMERS_OFFLINE=1
+
+# Weights are staged on a read-only mount by the worker, which holds the only
+# credential that can fetch them. Offline mode above means a compromised engine
+# cannot reach out for different ones even if the network allowed it.
+
+ENTRYPOINT ["python3", "-m", "vllm.entrypoints.cli.main", "serve"]
